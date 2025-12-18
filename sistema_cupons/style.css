@@ -252,4 +252,14 @@ button:hover {
 }
 
 .login-header { text-align: center; margin-bottom: 30px; }
-.login-header h1 { color: var(--primary); margin-bottom: 10px; }
+.login-header h1 { 
+    color: var(--primary); 
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-header h1 span {
+    color: var(--accent);
+}

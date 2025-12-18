@@ -9,7 +9,7 @@
 <body class="login-wrapper">
     <div class="login-card">
         <div class="login-header">
-            <h1>Cupons <span>Leila</span></h1>
+            <h1>Cupons<span>Leila</span></h1>
             <p style="color: var(--gray);">Conectando moradores e comércios.</p>
         </div>
         
