@@ -7,6 +7,17 @@ if (!isset($_SESSION['usuario']) || $_SESSION['tipo'] != 'comercio') {
     exit;
 }
 $cnpj = $_SESSION['usuario']['cnpj_comercio'];
+
+$filtro = isset($_GET['filtro']) ? $_GET['filtro'] : 'ativos';
+$sql = "SELECT * FROM CUPOM WHERE cnpj_comercio = :cnpj";
+
+if ($filtro == 'ativos') {
+    $sql .= " AND dta_termino_cupom >= CURDATE() ORDER BY dta_emissao_cupom DESC";
+} elseif ($filtro == 'vencidos') {
+    $sql .= " AND dta_termino_cupom < CURDATE() ORDER BY dta_termino_cupom DESC";
+} else {
+    $sql .= " ORDER BY dta_emissao_cupom DESC";
+}
 ?>
 
 <!DOCTYPE html>
@@ -19,7 +30,7 @@ $cnpj = $_SESSION['usuario']['cnpj_comercio'];
 <body>
     <div class="container">
         <div class="nav">
-            <div class="brand-logo">Cupons<span>Leila</span></div>
+            <div class="brand-logo">Cupons <span>Leila</span></div>
             <div class="user-info">
                 <span>Olá, <strong><?php echo $_SESSION['usuario']['nom_fantasia_comercio']; ?></strong></span>
                 <a href="login.php" class="logout">Sair</a>
@@ -40,56 +51,53 @@ $cnpj = $_SESSION['usuario']['cnpj_comercio'];
 
         <div class="card" style="border-left: 5px solid var(--accent);">
             <h2 style="color: var(--accent-dark);">✅ Validar Cupom</h2>
-            <p style="color: var(--gray); margin-bottom: 15px;">Digite o código apresentado pelo cliente para registrar a venda.</p>
             <form action="../controllers/CupomController.php" method="POST" style="flex-direction: row; flex-wrap: wrap;">
                 <input type="text" name="codigo_cupom" placeholder="Código (Ex: a1b2c3...)" style="flex: 2; min-width: 200px;" required>
                 <button type="submit" name="validar_uso" style="flex: 1; background: var(--accent);">Validar Agora</button>
             </form>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div class="card" style="grid-column: span 2;">
-                <h2>📢 Nova Promoção</h2>
-                <form action="../controllers/CupomController.php" method="POST">
-                    <div style="display:flex; gap:20px; flex-wrap:wrap;">
-                         <div style="flex:2"><label>Título da Promoção</label><input type="text" name="titulo" placeholder="Ex: 50% OFF na Pizza" required></div>
-                         <div style="flex:1"><label>% Desconto</label><input type="number" name="desconto" placeholder="Ex: 15" required></div>
-                         <div style="flex:1"><label>Quantidade</label><input type="number" name="quantidade" placeholder="Ex: 10" required></div>
-                    </div>
-                    
-                    <div style="display:flex; gap:20px; flex-wrap:wrap;">
-                        <div style="flex:1"><label>Início</label><input type="date" name="inicio" required></div>
-                        <div style="flex:1"><label>Fim</label><input type="date" name="fim" required></div>
-                    </div>
-
-                    <button type="submit" name="criar_cupom">Gerar Cupons</button>
-                </form>
-            </div>
+        <div class="card">
+            <h2>📢 Nova Promoção</h2>
+            <form action="../controllers/CupomController.php" method="POST">
+                <input type="text" name="titulo" placeholder="Título (Ex: 50% OFF na Pizza)" required>
+                <div style="display:flex; gap:20px; flex-wrap:wrap;">
+                     <div style="flex:1"><label>Início</label><input type="date" name="inicio" required></div>
+                     <div style="flex:1"><label>Fim</label><input type="date" name="fim" required></div>
+                     <div style="flex:1"><label>% Desconto</label><input type="number" name="desconto" required></div>
+                     <div style="flex:1"><label>Qtd.</label><input type="number" name="quantidade" required></div>
+                </div>
+                <button type="submit" name="criar_cupom">Gerar Cupons</button>
+            </form>
         </div>
 
-        <h2 style="margin-top: 40px; border-bottom: 2px solid #eee; padding-bottom: 10px;">🎫 Histórico de Cupons</h2>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:40px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
+            <h2>🎫 Meus Cupons</h2>
+            <form action="" method="GET" style="flex-direction:row; gap:10px;">
+                <select name="filtro" onchange="this.form.submit()" style="padding:10px;">
+                    <option value="ativos" <?php echo $filtro=='ativos'?'selected':''; ?>>Ativos</option>
+                    <option value="vencidos" <?php echo $filtro=='vencidos'?'selected':''; ?>>Vencidos</option>
+                    <option value="todos" <?php echo $filtro=='todos'?'selected':''; ?>>Todos</option>
+                </select>
+            </form>
+        </div>
         
-        <div class="cupom-grid">
+        <div class="cupom-grid" style="margin-top: 20px;">
             <?php
-            $stmt = $pdo->prepare("SELECT * FROM CUPOM WHERE cnpj_comercio = :cnpj ORDER BY dta_emissao_cupom DESC LIMIT 6");
+            $stmt = $pdo->prepare($sql . " LIMIT 20");
             $stmt->execute([':cnpj' => $cnpj]);
             $cupons = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             if (count($cupons) > 0) {
                 foreach ($cupons as $cupom) {
                     echo "<div class='cupom-card'>";
-                    echo "<div class='cupom-header'>";
-                    echo "<h3>" . $cupom['tit_cupom'] . "</h3>";
-                    echo "<span class='cupom-discount'>" . $cupom['per_desc_cupom'] . "% OFF</span>";
-                    echo "</div>";
-                    echo "<div class='cupom-body'>";
-                    echo "<span style='font-size:0.8rem; color:#888'>CÓDIGO</span>";
-                    echo "<div class='cupom-code'>" . $cupom['num_cupom'] . "</div>";
-                    echo "</div>";
-                    echo "</div>";
+                    echo "<div class='cupom-header'><h3>" . $cupom['tit_cupom'] . "</h3>";
+                    echo "<span class='cupom-discount'>" . $cupom['per_desc_cupom'] . "% OFF</span></div>";
+                    echo "<div class='cupom-body'><div class='cupom-code'>" . $cupom['num_cupom'] . "</div>";
+                    echo "<small>Vence: " . date('d/m/Y', strtotime($cupom['dta_termino_cupom'])) . "</small></div></div>";
                 }
             } else {
-                echo "<p style='color:var(--gray);'>Nenhum cupom ativo no momento.</p>";
+                echo "<p style='color:var(--gray);'>Nenhum cupom encontrado neste filtro.</p>";
             }
             ?>
         </div>

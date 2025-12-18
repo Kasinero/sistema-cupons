@@ -252,14 +252,15 @@ button:hover {
 }
 
 .login-header { text-align: center; margin-bottom: 30px; }
-.login-header h1 { 
-    color: var(--primary); 
-    margin-bottom: 10px;
+
+.login-header h1 {
     display: flex;
     justify-content: center;
     align-items: center;
+    color: #6c5ce7;
 }
 
-.login-header h1 span {
-    color: var(--accent);
+.login-header h1 span,
+.brand-logo span {
+    color: #00b894 !important;
 }

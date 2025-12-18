@@ -1,9 +1,11 @@
 <?php
 session_start();
 require_once '../config/conexao.php';
+
 function gerarHash($tamanho = 12) {
     return substr(bin2hex(random_bytes($tamanho)), 0, $tamanho);
 }
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['criar_cupom'])) {
     $titulo = $_POST['titulo'];
     $inicio = $_POST['inicio'];
@@ -55,6 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reservar_cupom'])) {
     }
     exit;
 }
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['validar_uso'])) {
     $codigo = $_POST['codigo_cupom'];
     $cnpj = $_SESSION['usuario']['cnpj_comercio'];

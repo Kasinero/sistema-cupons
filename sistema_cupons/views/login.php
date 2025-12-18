@@ -5,6 +5,31 @@
     <title>Login - Cupons Leila</title>
     <link rel="stylesheet" href="../style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        function mascaraLogin(i) {
+            var v = i.value;
+            
+            if(isNaN(v[v.length-1])){
+                i.value = v.substring(0, v.length-1);
+                return;
+            }
+            
+            var clean = v.replace(/\D/g, '');
+            
+            if (clean.length <= 11) {
+                 v = clean.replace(/(\d{3})(\d)/, "$1.$2");
+                 v = v.replace(/(\d{3})(\d)/, "$1.$2");
+                 v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+            } else {
+                 v = clean.replace(/^(\d{2})(\d)/, "$1.$2");
+                 v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+                 v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
+                 v = v.replace(/(\d{4})(\d)/, "$1-$2");
+            }
+            
+            i.value = v;
+        }
+    </script>
 </head>
 <body class="login-wrapper">
     <div class="login-card">
@@ -23,7 +48,7 @@
         <form action="../controllers/AuthController.php" method="POST">
             <div>
                 <label>Usuário (CPF ou CNPJ)</label>
-                <input type="text" name="login" placeholder="Digite apenas números" required>
+                <input type="text" name="login" placeholder="Digite apenas números" required oninput="mascaraLogin(this)" maxlength="18">
             </div>
             
             <div>
