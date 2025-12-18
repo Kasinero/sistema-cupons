@@ -73,7 +73,6 @@ if (!isset($_SESSION['usuario']) || $_SESSION['tipo'] != 'associado') {
         <h2 style="margin-bottom: 20px;">🔥 Ofertas Recentes</h2>
         <div class="cupom-grid">
             <?php
-            // AQUI ESTAVA O PROBLEMA: Adicionei ORDER BY para mostrar os mais novos primeiro
             $sql = "SELECT c.*, com.nom_fantasia_comercio 
                     FROM CUPOM c 
                     JOIN COMERCIO com ON c.cnpj_comercio = com.cnpj_comercio
